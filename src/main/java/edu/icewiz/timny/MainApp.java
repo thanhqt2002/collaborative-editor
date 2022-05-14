@@ -9,13 +9,23 @@ import javafx.stage.Stage;
 public class MainApp extends Application{
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/landingpage.fxml"));
-        Parent root = loader.load();
 
-        Scene scene = new Scene(root);
+        FXMLLoader landingPageLoader = new FXMLLoader(getClass().getResource("fxml/landingPage.fxml"));
+        Parent landingPagePane = landingPageLoader.load();
+        Scene landingPageScene = new Scene(landingPagePane);
 
-        stage.setTitle("JavaFX and Gradle");
-        stage.setScene(scene);
+        FXMLLoader editingPageLoader = new FXMLLoader(getClass().getResource("fxml/editingPage.fxml"));
+        Parent editingPagePane = editingPageLoader.load();
+        Scene editingPageScene = new Scene(editingPagePane);
+
+        LandingPageController landingPageController = landingPageLoader.getController();
+        EditingPageController editingPageController = editingPageLoader.getController();
+
+        landingPageController.setEditingPageScene(editingPageScene);
+        editingPageController.setLandingPageScene(landingPageScene);
+
+        stage.setTitle("Timny");
+        stage.setScene(landingPageScene);
         stage.show();
     }
 

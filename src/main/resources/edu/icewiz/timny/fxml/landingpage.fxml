@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.LandingPageController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.LandingPageController">
    <children>
       <ImageView fitHeight="206.0" fitWidth="481.0" layoutX="60.0" layoutY="25.0" pickOnBounds="true">
          <image>
@@ -19,7 +19,7 @@
       <HBox layoutX="162.0" layoutY="304.0" prefHeight="47.0" prefWidth="235.0">
          <children>
             <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectPort" prefHeight="52.0" prefWidth="82.0" text="Connect" />
-            <TextField fx:id="linkTextArea" prefHeight="49.0" prefWidth="150.0" text="9990" />
+            <TextField fx:id="linkTextArea" prefHeight="49.0" prefWidth="150.0" />
          </children>
       </HBox>
    </children>

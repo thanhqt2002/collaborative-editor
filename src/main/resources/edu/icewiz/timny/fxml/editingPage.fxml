@@ -6,8 +6,7 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.EditingPageController">
    <center>
       <TextArea prefHeight="190.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
    </center>
@@ -17,9 +16,9 @@
    <top>
       <ToolBar prefHeight="40.0" prefWidth="544.0" BorderPane.alignment="CENTER">
         <items>
-          <Button mnemonicParsing="false" text="Save" />
-            <Button mnemonicParsing="false" text="Disconnect" />
-            <Label text="FIle name" />
+          <Button mnemonicParsing="false" onAction="#SaveText" text="Save" />
+            <Button mnemonicParsing="false" onAction="#disconnectServer" text="Disconnect" />
+            <Label text="File name" />
             <Label text="Connection info" />
             <Label text="Peer contected" />
         </items>
