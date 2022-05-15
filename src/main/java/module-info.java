@@ -4,6 +4,7 @@ module timny {
     requires Java.WebSocket;
     requires java.desktop;
     requires java.datatransfer;
+    requires java.logging;
 
     opens edu.icewiz.timny to javafx.fxml;
     exports edu.icewiz.timny;

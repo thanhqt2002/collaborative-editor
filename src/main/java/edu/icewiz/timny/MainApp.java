@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application{
+    private LandingPageController landingPageController;
+    private EditingPageController editingPageController;
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -18,8 +20,8 @@ public class MainApp extends Application{
         Parent editingPagePane = editingPageLoader.load();
         Scene editingPageScene = new Scene(editingPagePane);
 
-        LandingPageController landingPageController = landingPageLoader.getController();
-        EditingPageController editingPageController = editingPageLoader.getController();
+        landingPageController = landingPageLoader.getController();
+        editingPageController = editingPageLoader.getController();
 
         landingPageController.setEditingPageScene(editingPageScene);
         editingPageController.setLandingPageScene(landingPageScene);
