@@ -83,7 +83,7 @@ public class ChatServer extends WebSocketServer {
 
 
   public static void main(String[] args) throws InterruptedException, IOException {
-    int port = 8887; // 843 flash policy port
+    int port = 8888; // 843 flash policy port
     try {
       port = Integer.parseInt(args[0]);
     } catch (Exception ex) {

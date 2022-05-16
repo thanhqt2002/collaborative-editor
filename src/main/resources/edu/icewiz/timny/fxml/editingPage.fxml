@@ -8,10 +8,10 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.EditingPageController">
    <center>
-      <TextArea prefHeight="190.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+      <TextArea fx:id="editingText" prefHeight="190.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
    </center>
    <bottom>
-      <TextArea editable="false" prefHeight="70.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+      <TextArea fx:id="logArea" editable="false" prefHeight="70.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
    </bottom>
    <top>
       <ToolBar prefHeight="40.0" prefWidth="544.0" BorderPane.alignment="CENTER">

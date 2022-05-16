@@ -12,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.concurrent.Task;
 
-import javax.swing.plaf.basic.BasicSliderUI;
 import java.io.*;
 import static java.util.logging.Level.SEVERE;
 import java.nio.file.Files;
@@ -20,9 +19,12 @@ import java.util.stream.Stream;
 import java.util.logging.Logger;
 import java.util.concurrent.ExecutionException;
 
+import edu.icewiz.crdt.*;
+
 public class LandingPageController {
 
     private Scene editingPageScene;
+    private EditingPageController editingPageController;
     @FXML
     private Button connectButton;
 
@@ -47,7 +49,9 @@ public class LandingPageController {
 
     @FXML
     void connectPort(ActionEvent event) {
-
+        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+        stage.setScene(editingPageScene);
+        editingPageController.connectServer(linkTextArea.getText());
     }
 
     @FXML
@@ -64,22 +68,23 @@ public class LandingPageController {
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         File fileToLoad = fileChooser.showOpenDialog(null);
         if(fileToLoad == null)return;
+        loadFileToTextArea(fileToLoad, event);
+    }
+
+    //Load file function inspired by tutorial of https://edencoding.com/how-to-open-edit-sync-and-save-a-text-file-in-javafx/
+    //But this tutorial does not work
+    //Heavily modified to show progressBar correctly, change screen, and pass data to the other screen for editing
+    private void loadFileToTextArea(File fileToLoad, ActionEvent event) {
         progressBar.setVisible(true);
         statusLabel.setVisible(true);
         statusLabel.setText("Loading file: " + fileToLoad.getName());
-        loadFileToTextArea(fileToLoad);
-//        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-//        stage.setScene(editingPageScene);
-    }
-
-    private void loadFileToTextArea(File fileToLoad) {
-        Task<String> loadTask = fileLoaderTask(fileToLoad);
+        Task<String> loadTask = fileLoaderTask(fileToLoad, event);
         progressBar.progressProperty().bind(loadTask.progressProperty());
         Thread loadTaskThread = new Thread(loadTask);
         loadTaskThread.start();
     }
 
-    private Task<String> fileLoaderTask(File fileToLoad) {
+    private Task<String> fileLoaderTask(File fileToLoad, ActionEvent event) {
         //Create a task to load the file asynchronously
         Task<String> loadFileTask = new Task<>() {
             @Override
@@ -96,8 +101,9 @@ public class LandingPageController {
                 long linesLoaded = 0;
                 while ((line = reader.readLine()) != null) {
                     totalFile.append(line);
-                    totalFile.append("\n");
-                    updateProgress(++linesLoaded, lineCount);
+                    if(++linesLoaded < lineCount)totalFile.append("\n");
+                    updateProgress(linesLoaded, lineCount);
+                    //Sleep for 200ms to demonstrate the progressBar updating
                     Thread.sleep(200);
                 }
                 return totalFile.toString();
@@ -107,8 +113,9 @@ public class LandingPageController {
         loadFileTask.setOnSucceeded(workerStateEvent -> {
             try {
                 String tmp = loadFileTask.get();
-                System.out.println(tmp);
-                statusLabel.setText("File loaded: " + fileToLoad.getName());
+                editingPageController.fromStringToEditingServer(tmp, linkTextArea.getText());
+                Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+                stage.setScene(editingPageScene);
             } catch (InterruptedException | ExecutionException e) {
                 Logger.getLogger(getClass().getName()).log(SEVERE, null, e);
                 statusLabel.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());
@@ -123,5 +130,8 @@ public class LandingPageController {
 
     public void setEditingPageScene(Scene scene){
         editingPageScene = scene;
+    }
+    public void setEditingPageController(EditingPageController editingPageController){
+        this.editingPageController = editingPageController;
     }
 }

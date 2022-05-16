@@ -26,9 +26,9 @@ javafx {
 mainClassName = "$moduleName/edu.icewiz.timny.MainApp"
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
         name = 'timny'
+        jvmArgs = ['-Djdk.gtk.version=2']
     }
 }
 
