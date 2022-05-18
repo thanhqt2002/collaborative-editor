@@ -2,14 +2,20 @@ package edu.icewiz.timny;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class MainApp extends Application{
     private LandingPageController landingPageController;
     private EditingPageController editingPageController;
+    @Override
+    public void stop(){
+        editingPageController.shutdownServerOrClient();
+    }
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -31,6 +37,12 @@ public class MainApp extends Application{
 
         stage.setTitle("Timny");
         stage.setScene(landingPageScene);
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                stop();
+            }
+        });
         stage.show();
     }
 
@@ -45,6 +57,5 @@ public class MainApp extends Application{
                 new MainApp().start(new Stage());
             }catch (Exception e){}
         });
-
     }
 }

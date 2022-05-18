@@ -13,10 +13,16 @@ import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtensi
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditingServer extends WebSocketServer {
+    HashMap<WebSocket,String> ConnectionInfo = new HashMap<WebSocket,String>();
+    private String myName = "Alice";
     @FXML
     private TextArea logArea;
+    @FXML
+    private TextArea editingText;
     private static final Draft perMessageDeflateDraft = new Draft_6455(
             new PerMessageDeflateExtension());
     public EditingServer(int port) {
@@ -30,27 +36,34 @@ public class EditingServer extends WebSocketServer {
     }
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        conn.send("Welcome to the server!"); //This method sends a message to the new client
-        broadcast("new connection: " + handshake
-                .getResourceDescriptor()); //This method sends a message to all clients connected
-        System.out.println(
-                conn.getRemoteSocketAddress().getAddress().getHostAddress() + " entered the room!");
+        conn.send(WebSocketMessage.serializeFromString(0, "Welcome to the server from " + myName + "!"));
     }
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        broadcast(conn + " has left the room!");
-        System.out.println(conn + " has left the room!");
+        String info = ConnectionInfo.get(conn) + " has left the room!";
+//        broadcast(WebSocketMessage.serializeFromString(0, info));
+        logArea.appendText(info);
+        logArea.positionCaret(logArea.getLength());
     }
-
     @Override
-    public void onMessage(WebSocket conn, String message) {
-        broadcast(message);
-        System.out.println(conn + ": " + message);
+    public void onMessage(WebSocket conn, String message){
+        //Do not need this function
+        //But it is here to fulfill interface requirement
     }
-
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
-        broadcast(message.array());
+        WebSocketMessage operation = new WebSocketMessage(message);
+        if(operation.type == 0){
+            logArea.appendText(ConnectionInfo.get(conn) + ": " + operation.detail + "!\n");
+            logArea.positionCaret(logArea.getLength());
+        }else if(operation.type == 1){
+            ConnectionInfo.put(conn, operation.detail);
+            logArea.appendText(operation.detail + " join the server" + "!\n");
+            logArea.positionCaret(logArea.getLength());
+        }else if(operation.type == 2){
+            editingText.setText(operation.detail);
+            broadcast(message);
+        }
         System.out.println(conn + ": " + message);
     }
 
@@ -75,5 +88,11 @@ public class EditingServer extends WebSocketServer {
     public void setLogArea(TextArea logArea){
         this.logArea = logArea;
     }
-
+    public void setEditingText(TextArea editingText){this.editingText = editingText;}
+    public void setName(String name){
+        if(name != null)myName = name;
+    }
+    public void Shutdown() throws InterruptedException{
+        stop(1000);
+    }
 }

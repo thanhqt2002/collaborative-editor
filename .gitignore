@@ -1,5 +1,6 @@
 /.gradle/
 /build/
+/out/
 /build/classes/java/main/
 /build/classes/java/test/
 .idea

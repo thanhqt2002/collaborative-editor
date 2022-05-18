@@ -3,10 +3,7 @@ package edu.icewiz.timny;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -27,7 +24,8 @@ public class LandingPageController {
     private EditingPageController editingPageController;
     @FXML
     private Button connectButton;
-
+    @FXML
+    private TextField nameField;
     @FXML
     private TextField linkTextArea;
 
@@ -44,7 +42,8 @@ public class LandingPageController {
     void initialize(){
         progressBar.setVisible(false);
         statusLabel.setVisible(false);
-        linkTextArea.setText("9990");
+        linkTextArea.setPromptText("Enter Port");
+        nameField.setPromptText("Enter Name");
     }
 
     @FXML
@@ -56,7 +55,9 @@ public class LandingPageController {
 
     @FXML
     void newFile(ActionEvent event) {
-
+        editingPageController.fromStringToEditingServer("", linkTextArea.getText());
+        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+        stage.setScene(editingPageScene);
     }
 
     @FXML
@@ -114,6 +115,7 @@ public class LandingPageController {
             try {
                 String tmp = loadFileTask.get();
                 editingPageController.fromStringToEditingServer(tmp, linkTextArea.getText());
+                editingPageController.setMyName(nameField.getText());
                 Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(editingPageScene);
             } catch (InterruptedException | ExecutionException e) {

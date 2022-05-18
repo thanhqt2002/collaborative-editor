@@ -17,12 +17,11 @@
             <Image url="@../assets/logo.png" />
          </image>
       </ImageView>
-      <Button fx:id="openButton" layoutX="159.0" layoutY="239.0" mnemonicParsing="false" onAction="#openFile" prefHeight="40.0" prefWidth="98.0" text="Open" />
-      <Button fx:id="newButton" layoutX="349.0" layoutY="239.0" mnemonicParsing="false" onAction="#newFile" prefHeight="40.0" prefWidth="87.0" text="New" />
-      <HBox layoutX="162.0" layoutY="304.0" prefHeight="47.0" prefWidth="235.0">
+      <HBox layoutX="141.0" layoutY="304.0" prefHeight="47.0" prefWidth="353.0">
          <children>
-            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectPort" prefHeight="52.0" prefWidth="82.0" text="Connect" />
-            <TextField fx:id="linkTextArea" prefHeight="49.0" prefWidth="150.0" />
+            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectPort" prefHeight="47.0" prefWidth="114.0" text="Connect" />
+            <Button fx:id="openButton" mnemonicParsing="false" onAction="#openFile" prefHeight="47.0" prefWidth="114.0" text="Open" />
+            <Button fx:id="newButton" mnemonicParsing="false" onAction="#newFile" prefHeight="47.0" prefWidth="125.0" text="New" />
          </children>
       </HBox>
       <HBox layoutX="1.0" layoutY="374.0" prefHeight="25.0" prefWidth="600.0">
@@ -39,5 +38,7 @@
             </ProgressBar>
          </children>
       </HBox>
+      <TextField fx:id="linkTextArea" layoutX="141.0" layoutY="241.0" prefHeight="47.0" prefWidth="135.0" />
+      <TextField fx:id="nameField" layoutX="350.0" layoutY="241.0" prefHeight="47.0" prefWidth="141.0" />
    </children>
 </AnchorPane>
