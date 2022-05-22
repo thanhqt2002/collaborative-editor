@@ -18,6 +18,8 @@ import java.util.Map;
 
 public class EditingServer extends WebSocketServer {
     HashMap<WebSocket,String> ConnectionInfo = new HashMap<WebSocket,String>();
+    private EditingPageController editingPageController;
+
     private String myName = "Alice";
     @FXML
     private TextArea logArea;
@@ -29,7 +31,7 @@ public class EditingServer extends WebSocketServer {
         super(new InetSocketAddress(port), Collections.singletonList(perMessageDeflateDraft));
     }
     public EditingServer(InetSocketAddress address) {
-        super(address);
+        super(address,Collections.singletonList(perMessageDeflateDraft));
     }
     public EditingServer(int port, Draft_6455 draft) {
         super(new InetSocketAddress(port), Collections.<Draft>singletonList(draft));
@@ -61,10 +63,11 @@ public class EditingServer extends WebSocketServer {
             logArea.appendText(operation.detail + " join the server" + "!\n");
             logArea.positionCaret(logArea.getLength());
         }else if(operation.type == 2){
+            if(editingPageController.lastReceivedMessage.equals(operation.detail))return;
+            editingPageController.lastReceivedMessage = operation.detail;
             editingText.setText(operation.detail);
-            broadcast(message);
         }
-        System.out.println(conn + ": " + message);
+//        System.out.println(conn + ": " + message);
     }
 
     @Override
@@ -94,5 +97,8 @@ public class EditingServer extends WebSocketServer {
     }
     public void Shutdown() throws InterruptedException{
         stop(1000);
+    }
+    public void setEditingPageController(EditingPageController editingPageController){
+        this.editingPageController = editingPageController;
     }
 }

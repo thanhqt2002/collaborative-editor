@@ -14,6 +14,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 public class EditingClient extends WebSocketClient {
     private String myName = "Bob";
+    private EditingPageController editingPageController;
     @FXML
     private TextArea editingText;
     @FXML
@@ -48,6 +49,8 @@ public class EditingClient extends WebSocketClient {
             logArea.appendText("Received message: " + operation.detail + "!\n");
             logArea.positionCaret(logArea.getLength());
         }else if(operation.type == 2){
+            if(editingPageController.lastReceivedMessage.equals(operation.detail))return;
+            editingPageController.lastReceivedMessage = operation.detail;
             editingText.setText(operation.detail);
         }
     }
@@ -72,5 +75,8 @@ public class EditingClient extends WebSocketClient {
 
     public void setName(String name){
         if(name != null)this.myName = name;
+    }
+    public void setEditingPageController(EditingPageController editingPageController){
+        this.editingPageController = editingPageController;
     }
 }

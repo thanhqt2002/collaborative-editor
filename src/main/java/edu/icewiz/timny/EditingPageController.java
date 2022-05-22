@@ -17,6 +17,7 @@ public class EditingPageController {
     private TextArea editingText;
     EditingServer editingServer;
     EditingClient editingClient;
+    String lastReceivedMessage;
     @FXML
     void SaveText(ActionEvent event) {
 
@@ -28,18 +29,19 @@ public class EditingPageController {
     }
     @FXML
     void initialize(){
+        lastReceivedMessage = "";
         logArea.setEditable(false);
         editingText.requestFocus();
         editingText.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(oldValue == newValue)return;
-            editingText.setEditable(false);
-            //            System.out.println("editingText changed from " + oldValue + " to " + newValue);
+            if(oldValue.equals(newValue) || lastReceivedMessage.equals(newValue))return;
+//            editingText.setEditable(false);
+//            System.out.println("editingText changed from " + oldValue + " to " + newValue);
             if(editingClient != null){
                 editingClient.send(WebSocketMessage.serializeFromString(2, newValue));
             }else if(editingServer != null){
                 editingServer.broadcast(WebSocketMessage.serializeFromString(2, newValue));
             }
-            editingText.setEditable(true);
+//            editingText.setEditable(true);
         });
     }
 
@@ -55,6 +57,7 @@ public class EditingPageController {
         editingServer.setName(myName);
         editingServer.setLogArea(logArea);
         editingServer.setEditingText(editingText);
+        editingServer.setEditingPageController(this);
         editingServer.start();
     }
 
@@ -74,6 +77,7 @@ public class EditingPageController {
         editingClient.setName(myName);
         editingClient.setLogArea(logArea);
         editingClient.setEditingText(editingText);
+        editingClient.setEditingPageController(this);
         editingClient.connect();
     }
 
