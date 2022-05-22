@@ -1,5 +1,6 @@
 package edu.icewiz.timny;
 
+import edu.icewiz.crdt.CrdtDoc;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.LoadException;
@@ -11,6 +12,7 @@ import java.io.IOException;
 public class EditingPageController {
     private Scene landingPageScene;
     private LandingPageController landingPageController;
+    CrdtDoc doc = new CrdtDoc();
     private String myName;
     @FXML TextArea logArea;
     @FXML
@@ -44,7 +46,13 @@ public class EditingPageController {
                 StringBuffer tmp = new StringBuffer(oldValue);
                 tmp.delete(lef,oldValue.length()-rig);
                 tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
-                System.out.printf("tmp: %s, old: %s, new: %s\n", tmp, oldValue, newValue);
+                for(int i = lef; i < oldValue.length() - rig; ++i){
+                    doc.localDelete(myName, lef);
+                }
+                for(int i = newValue.length() - rig - 1; i >= lef; --i){
+                    doc.localInsert(myName,lef,newValue.substring(i,i+1));
+                }
+                System.out.printf("tmp: %s, old: %s, new: %s, doc: %s\n", tmp, oldValue, newValue, doc);
             }
             if(editingClient != null){
                 editingClient.send(WebSocketMessage.serializeFromString(2, newValue));

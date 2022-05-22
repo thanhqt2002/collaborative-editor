@@ -11,7 +11,7 @@ public class CrdtDoc {
     int length;
     HashMap<String,Integer> version;
 
-    CrdtDoc(){
+    public CrdtDoc(){
         content = new ArrayList<>(0);
         length = 0;
         version = new HashMap<>();
@@ -55,7 +55,8 @@ public class CrdtDoc {
     }
     int findItemAtPos(int pos, boolean stick_end) throws NoSuchElementException{
         int cntValid = 0;
-        for(int i = 0; i < content.size(); ++i){
+        int i = 0;
+        for(i = 0; i < content.size(); ++i){
             CrdtItem item = content.get(i);
             if(stick_end && pos == cntValid)return i;
             if(item.isDeleted == false && item.value != null) {
@@ -63,6 +64,7 @@ public class CrdtDoc {
                 ++cntValid;
             }
         }
+        if(pos == cntValid)return i;
         throw new NoSuchElementException();
     }
 
@@ -79,16 +81,17 @@ public class CrdtDoc {
         return content.get(pos).id;
     }
 
-    void localInsert(String agent, int pos, String value){
+    public void localInsert(String agent, int pos, String value){
+        int i = findItemAtPos(pos);
         integrate(new CrdtItem(value,
                 new ItemID(agent,getNextSeq(agent)),
-                getItemIDAtPos(pos - 1),
-                getItemIDAtPos(pos),
+                getItemIDAtPos(i - 1),
+                getItemIDAtPos(i),
                 false
-                ), findItemAtPos(pos));
+                ), i);
     }
 
-    void localDelete(String agent, int pos){
+    public void localDelete(String agent, int pos){
         CrdtItem item = content.get(findItemAtPos(pos));
         if(!item.isDeleted){
             item.isDeleted = true;
@@ -102,12 +105,15 @@ public class CrdtDoc {
             System.out.println(String.format("Should see operation seq #%v, but saw #%v instead", shouldProcessSeq, item.id.seq));
             return;
         }
+        System.out.println(item.id.agent);
         version.put(item.id.agent, item.id.seq);
+        if(item.originLeft != null)System.out.println(item.originLeft.agent);
         int left = findItem(item.originLeft, idx_hint - 1);
+        System.out.println(left);
         int destIdx = left + 1;
         int right = item.originRight == null ? content.size() : findItem(item.originRight, idx_hint);
         boolean scanning = false;
-
+        System.out.println(right);
         for(int i = destIdx; ; ++i){
             if(!scanning)destIdx = i;
             if(i == content.size())break;
@@ -138,6 +144,12 @@ public class CrdtDoc {
 
     @Override
     public String toString() {
-        return "";
+        StringBuilder result = new StringBuilder();
+        for(CrdtItem item: content){
+            if(item.isDeleted == false){
+                result.append(item.value);
+            }
+        }
+        return result.toString();
     }
 }

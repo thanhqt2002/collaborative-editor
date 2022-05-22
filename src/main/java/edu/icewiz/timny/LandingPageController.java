@@ -55,6 +55,7 @@ public class LandingPageController {
 
     @FXML
     void newFile(ActionEvent event) {
+        editingPageController.setMyName(nameField.getText());
         editingPageController.fromStringToEditingServer("", linkTextArea.getText());
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         stage.setScene(editingPageScene);
