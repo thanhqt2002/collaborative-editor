@@ -34,14 +34,23 @@ public class EditingPageController {
         editingText.requestFocus();
         editingText.textProperty().addListener((observable, oldValue, newValue) -> {
             if(oldValue.equals(newValue) || lastReceivedMessage.equals(newValue))return;
-//            editingText.setEditable(false);
-//            System.out.println("editingText changed from " + oldValue + " to " + newValue);
+            int lef = 0;
+            while(lef < oldValue.length() && lef < newValue.length() && oldValue.charAt(lef) == newValue.charAt(lef))lef++;
+            int rig = 0;
+            while(oldValue.length() - rig - 1 >= lef && newValue.length() - rig - 1 >= lef &&
+                    oldValue.charAt(oldValue.length() - rig - 1) == newValue.charAt(newValue.length() - rig - 1))rig++;
+            if(editingServer != null){
+                System.out.printf("lef: %d, rig: %d\n", lef, rig);
+                StringBuffer tmp = new StringBuffer(oldValue);
+                tmp.delete(lef,oldValue.length()-rig);
+                tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
+                System.out.printf("tmp: %s, old: %s, new: %s\n", tmp, oldValue, newValue);
+            }
             if(editingClient != null){
                 editingClient.send(WebSocketMessage.serializeFromString(2, newValue));
             }else if(editingServer != null){
                 editingServer.broadcast(WebSocketMessage.serializeFromString(2, newValue));
             }
-//            editingText.setEditable(true);
         });
     }
 

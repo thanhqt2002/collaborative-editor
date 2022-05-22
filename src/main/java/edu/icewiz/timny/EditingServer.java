@@ -68,7 +68,6 @@ public class EditingServer extends WebSocketServer {
             editingPageController.lastReceivedMessage = operation.detail;
             editingText.setText(operation.detail);
         }
-//        System.out.println(conn + ": " + message);
     }
 
     @Override
