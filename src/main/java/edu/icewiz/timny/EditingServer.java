@@ -64,6 +64,7 @@ public class EditingServer extends WebSocketServer {
             logArea.positionCaret(logArea.getLength());
         }else if(operation.type == 2){
             if(editingPageController.lastReceivedMessage.equals(operation.detail))return;
+            broadcastExclude(conn, message);
             editingPageController.lastReceivedMessage = operation.detail;
             editingText.setText(operation.detail);
         }
@@ -88,6 +89,12 @@ public class EditingServer extends WebSocketServer {
         setConnectionLostTimeout(100);
     }
 
+    private void broadcastExclude(WebSocket conn, ByteBuffer message){
+        for(WebSocket client : ConnectionInfo.keySet()){
+            if(client.equals(conn))continue;
+            client.send(message);
+        }
+    }
     public void setLogArea(TextArea logArea){
         this.logArea = logArea;
     }
