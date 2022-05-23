@@ -54,15 +54,15 @@ public class MainApp extends Application{
                 new MainApp().start(new Stage());
             }catch (Exception e){}
         });
-//        Platform.runLater(() -> {
-//            try {
-//                new MainApp().start(new Stage());
-//            }catch (Exception e){}
-//        });
-//        Platform.runLater(() -> {
-//            try {
-//                new MainApp().start(new Stage());
-//            }catch (Exception e){}
-//        });
+        Platform.runLater(() -> {
+            try {
+                new MainApp().start(new Stage());
+            }catch (Exception e){}
+        });
+        Platform.runLater(() -> {
+            try {
+                new MainApp().start(new Stage());
+            }catch (Exception e){}
+        });
     }
 }
