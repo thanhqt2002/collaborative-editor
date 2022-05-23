@@ -19,7 +19,7 @@ public class MainApp extends Application{
     @Override
     public void start(Stage stage) throws Exception {
 
-        FXMLLoader landingPageLoader = new FXMLLoader(getClass().getResource("fxml/landingPage.fxml"));
+        FXMLLoader landingPageLoader = new FXMLLoader(getClass().getResource("fxml/landingpage.fxml"));
         Parent landingPagePane = landingPageLoader.load();
         Scene landingPageScene = new Scene(landingPagePane);
 
@@ -34,6 +34,8 @@ public class MainApp extends Application{
         landingPageController.setEditingPageController(editingPageController);
         editingPageController.setLandingPageScene(landingPageScene);
         editingPageController.setLandingPageController(landingPageController);
+
+        editingPageScene.getStylesheets().add(EditingPageController.class.getResource("assets/java-keywords.css").toExternalForm());
 
         stage.setTitle("Timny");
         stage.setScene(landingPageScene);
@@ -52,15 +54,15 @@ public class MainApp extends Application{
                 new MainApp().start(new Stage());
             }catch (Exception e){}
         });
-        Platform.runLater(() -> {
-            try {
-                new MainApp().start(new Stage());
-            }catch (Exception e){}
-        });
-        Platform.runLater(() -> {
-            try {
-                new MainApp().start(new Stage());
-            }catch (Exception e){}
-        });
+//        Platform.runLater(() -> {
+//            try {
+//                new MainApp().start(new Stage());
+//            }catch (Exception e){}
+//        });
+//        Platform.runLater(() -> {
+//            try {
+//                new MainApp().start(new Stage());
+//            }catch (Exception e){}
+//        });
     }
 }

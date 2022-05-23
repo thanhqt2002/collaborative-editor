@@ -2,8 +2,10 @@ package edu.icewiz.timny;
 
 import edu.icewiz.crdt.CrdtDoc;
 import edu.icewiz.crdt.CrdtItem;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import org.fxmisc.richtext.CodeArea;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
@@ -26,7 +28,7 @@ public class EditingServer extends WebSocketServer {
     @FXML
     private TextArea logArea;
     @FXML
-    private TextArea editingText;
+    private CodeArea codeArea;
     private static final Draft perMessageDeflateDraft = new Draft_6455(
             new PerMessageDeflateExtension());
     public EditingServer(int port) {
@@ -57,6 +59,8 @@ public class EditingServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
         WebSocketMessage operation = new WebSocketMessage(message);
+        Runnable update = () -> codeArea.replaceText(doc.toString());;
+
         if(operation.type == 0){
             logArea.appendText(ConnectionInfo.get(conn) + ": " + operation.detail + "!\n");
             logArea.positionCaret(logArea.getLength());
@@ -64,12 +68,6 @@ public class EditingServer extends WebSocketServer {
             ConnectionInfo.put(conn, operation.detail);
             logArea.appendText(operation.detail + " join the server" + "!\n");
             logArea.positionCaret(logArea.getLength());
-        }else if(operation.type == 2){
-            if(editingPageController.lastReceivedMessage != null &&
-                    editingPageController.lastReceivedMessage.equals(operation.detail))return;
-            broadcastExclude(conn, message);
-            editingPageController.lastReceivedMessage = operation.detail;
-            editingText.setText(operation.detail);
         }else if(operation.type == 3){
             if(operation.item == null || operation.item.id == null)return;
             doc.addInsertOperationToWaitList(operation.item);
@@ -77,7 +75,9 @@ public class EditingServer extends WebSocketServer {
                     editingPageController.lastReceivedMessage.equals(doc.toString()))return;
             broadcastExclude(conn, message);
             editingPageController.lastReceivedMessage = doc.toString();
-            editingText.setText(doc.toString());
+//            codeArea.replaceText(doc.toString());
+            if (Platform.isFxApplicationThread()) update.run();
+            else Platform.runLater(update);
         }else if(operation.type == 4){
             if(operation.item == null || operation.item.id == null)return;
             doc.addDeleteOperationToWaitList(operation.item);
@@ -85,7 +85,9 @@ public class EditingServer extends WebSocketServer {
                     editingPageController.lastReceivedMessage.equals(doc.toString()))return;
             broadcastExclude(conn, message);
             editingPageController.lastReceivedMessage = doc.toString();
-            editingText.setText(doc.toString());
+//            codeArea.replaceText(doc.toString());
+            if (Platform.isFxApplicationThread()) update.run();
+            else Platform.runLater(update);
         }
     }
 
@@ -116,7 +118,9 @@ public class EditingServer extends WebSocketServer {
     public void setLogArea(TextArea logArea){
         this.logArea = logArea;
     }
-    public void setEditingText(TextArea editingText){this.editingText = editingText;}
+    public void setCodeArea(CodeArea codeArea){
+        this.codeArea = codeArea;
+    }
     public void setName(String name){
         if(name != null)myName = name;
     }
