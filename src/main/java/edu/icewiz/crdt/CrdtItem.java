@@ -1,11 +1,15 @@
 package edu.icewiz.crdt;
 
-public class CrdtItem {
+import java.io.*;
+
+public class CrdtItem implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 61228022833708L;
     String value;
-    ItemID id;
+    public ItemID id;
     ItemID originLeft;
     ItemID originRight;
-    boolean isDeleted;
+    public boolean isDeleted;
     CrdtItem(String value, ItemID id, ItemID originLeft, ItemID originRight, boolean isDeleted){
         this.value = value;
         this.id = id;

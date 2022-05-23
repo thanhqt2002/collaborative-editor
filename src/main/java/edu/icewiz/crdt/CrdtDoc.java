@@ -10,11 +10,14 @@ public class CrdtDoc {
     ArrayList<CrdtItem> content;
     int length;
     HashMap<String,Integer> version;
-
+    ArrayList<CrdtItem> WaitListInsert;
+    ArrayList<CrdtItem> WaitListDelete;
     public CrdtDoc(){
         content = new ArrayList<>(0);
         length = 0;
         version = new HashMap<>();
+        WaitListInsert = new ArrayList<>(0);
+        WaitListDelete = new ArrayList<>(0);
     }
 
     boolean idEq(ItemID a, ItemID b){
@@ -81,20 +84,88 @@ public class CrdtDoc {
         return content.get(pos).id;
     }
 
-    public void localInsert(String agent, int pos, String value){
-        int i = findItemAtPos(pos);
-        integrate(new CrdtItem(value,
-                new ItemID(agent,getNextSeq(agent)),
-                getItemIDAtPos(i - 1),
-                getItemIDAtPos(i),
-                false
-                ), i);
+    public boolean isInDoc(ItemID id){
+        if(id == null || id.agent == null)return true;
+        return version.get(id.agent) != null && version.get(id.agent) >= id.seq;
     }
 
-    public void localDelete(String agent, int pos){
+    boolean shouldInsertNow(CrdtItem item){
+        return !isInDoc(item.id) &&
+                (item.id.seq == 0 || isInDoc(new ItemID(item.id.agent, item.id.seq - 1))) &&
+                isInDoc(item.originLeft) && isInDoc(item.originRight);
+    }
+
+    void TryClearWaitListInsert(){
+        while(WaitListInsert.size() > 0) {
+            boolean shouldContinue = false;
+            ArrayList<CrdtItem> CannotInsert = new ArrayList<>(0);
+            for (CrdtItem item : WaitListInsert) {
+                if (shouldInsertNow(item)) {
+                    Insert(item);
+                    shouldContinue = true;
+                } else {
+                    if (isInDoc(item.id)) continue;
+                    CannotInsert.add(item);
+                }
+            }
+            WaitListInsert = CannotInsert;
+            if (shouldContinue == false) break;
+        }
+    }
+
+    void TryClearWaitListDelete(){
+        ArrayList<CrdtItem> CannotDelete = new ArrayList<>(0);
+        for(CrdtItem item: WaitListDelete){
+            if(isInDoc(item.id)){
+                Delete(item);
+            }else{
+                CannotDelete.add(item);
+            }
+        }
+        WaitListDelete = CannotDelete;
+    }
+
+    public void addInsertOperationToWaitList(CrdtItem item){
+        WaitListInsert.add(item);
+        TryClearWaitListInsert();
+        TryClearWaitListDelete();
+    }
+
+    public void addDeleteOperationToWaitList(CrdtItem item){
+        if(isInDoc(item.id))Delete(item);
+        else WaitListDelete.add(item);
+    }
+
+    public CrdtItem localInsert(String agent, int pos, String value){
+        int i = findItemAtPos(pos);
+        CrdtItem item =
+                new CrdtItem(value,
+                    new ItemID(agent,getNextSeq(agent)),
+                    getItemIDAtPos(i - 1),
+                    getItemIDAtPos(i),
+                    false
+                );
+        integrate(item , i);
+        return item;
+    }
+
+    public CrdtItem localDelete(String agent, int pos){
         CrdtItem item = content.get(findItemAtPos(pos));
         if(!item.isDeleted){
             item.isDeleted = true;
+            length--;
+        }
+        return item;
+    }
+
+    public void Insert(CrdtItem item){
+        integrate(item, -1);
+    }
+    public void Delete(CrdtItem item){
+        int pos = findItem(item.id, -1);
+        CrdtItem myItem = content.get(pos);
+        if(!myItem.isDeleted){
+            myItem.isDeleted = true;
             length--;
         }
     }
@@ -105,15 +176,15 @@ public class CrdtDoc {
             System.out.println(String.format("Should see operation seq #%v, but saw #%v instead", shouldProcessSeq, item.id.seq));
             return;
         }
-        System.out.println(item.id.agent);
+//        System.out.println(item.id.agent);
         version.put(item.id.agent, item.id.seq);
-        if(item.originLeft != null)System.out.println(item.originLeft.agent);
+//        if(item.originLeft != null)System.out.println(item.originLeft.agent);
         int left = findItem(item.originLeft, idx_hint - 1);
-        System.out.println(left);
+//        System.out.println(left);
         int destIdx = left + 1;
         int right = item.originRight == null ? content.size() : findItem(item.originRight, idx_hint);
         boolean scanning = false;
-        System.out.println(right);
+//        System.out.println(right);
         for(int i = destIdx; ; ++i){
             if(!scanning)destIdx = i;
             if(i == content.size())break;
