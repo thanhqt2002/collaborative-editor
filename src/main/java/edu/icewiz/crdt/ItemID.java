@@ -1,6 +1,10 @@
 package edu.icewiz.crdt;
 
-public class ItemID {
+import java.io.*;
+
+public class ItemID implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 61338028833508L;
     String agent;
     int seq;
     ItemID(String agent, int seq) {

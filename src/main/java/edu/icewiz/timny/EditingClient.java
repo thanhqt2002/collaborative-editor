@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
+import edu.icewiz.crdt.CrdtDoc;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import org.java_websocket.client.WebSocketClient;
@@ -15,6 +16,7 @@ import org.java_websocket.handshake.ServerHandshake;
 public class EditingClient extends WebSocketClient {
     private String myName = "Bob";
     private EditingPageController editingPageController;
+    private CrdtDoc doc;
     @FXML
     private TextArea editingText;
     @FXML
@@ -49,9 +51,24 @@ public class EditingClient extends WebSocketClient {
             logArea.appendText("Received message: " + operation.detail + "!\n");
             logArea.positionCaret(logArea.getLength());
         }else if(operation.type == 2){
-            if(editingPageController.lastReceivedMessage.equals(operation.detail))return;
+            if(editingPageController.lastReceivedMessage != null &&
+                    editingPageController.lastReceivedMessage.equals(operation.detail))return;
             editingPageController.lastReceivedMessage = operation.detail;
             editingText.setText(operation.detail);
+        }else if(operation.type == 3){
+            if(operation.item == null || operation.item.id == null)return;
+            doc.addInsertOperationToWaitList(operation.item);
+            if(editingPageController.lastReceivedMessage != null &&
+                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
+            editingPageController.lastReceivedMessage = doc.toString();
+            editingText.setText(doc.toString());
+        }else if(operation.type == 4){
+            if(operation.item == null || operation.item.id == null)return;
+            doc.addDeleteOperationToWaitList(operation.item);
+            if(editingPageController.lastReceivedMessage != null &&
+                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
+            editingPageController.lastReceivedMessage = doc.toString();
+            editingText.setText(doc.toString());
         }
     }
 
@@ -79,5 +96,8 @@ public class EditingClient extends WebSocketClient {
     }
     public void setEditingPageController(EditingPageController editingPageController){
         this.editingPageController = editingPageController;
+    }
+    public void setCrdtDoc(CrdtDoc doc){
+        this.doc = doc;
     }
 }

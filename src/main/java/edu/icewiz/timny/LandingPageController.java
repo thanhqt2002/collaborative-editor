@@ -50,6 +50,7 @@ public class LandingPageController {
     void connectPort(ActionEvent event) {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         stage.setScene(editingPageScene);
+        editingPageController.setMyName(nameField.getText());
         editingPageController.connectServer(linkTextArea.getText());
     }
 
