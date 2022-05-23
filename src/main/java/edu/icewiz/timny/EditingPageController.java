@@ -97,7 +97,7 @@ public class EditingPageController {
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         Subscription cleanupWhenDone = codeArea.multiPlainChanges()
-                .successionEnds(Duration.ofMillis(500))
+                .successionEnds(Duration.ofMillis(200))
                 .retainLatestUntilLater(executor)
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(codeArea.multiPlainChanges())

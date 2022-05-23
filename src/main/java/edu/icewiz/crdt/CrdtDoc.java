@@ -151,7 +151,9 @@ public class CrdtDoc {
     }
 
     public CrdtItem localDelete(String agent, int pos){
-        CrdtItem item = content.get(findItemAtPos(pos));
+        int i = findItemAtPos(pos);
+        if(i >= content.size())return null;
+        CrdtItem item = content.get(i);
         if(!item.isDeleted){
             item.isDeleted = true;
             length--;
