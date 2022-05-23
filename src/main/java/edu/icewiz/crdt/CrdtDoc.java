@@ -2,18 +2,21 @@ package edu.icewiz.crdt;
 
 import org.java_websocket.exceptions.IncompleteException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CrdtDoc {
-    ArrayList<CrdtItem> content;
+    List<CrdtItem> content;
     int length;
     HashMap<String,Integer> version;
     ArrayList<CrdtItem> WaitListInsert;
     ArrayList<CrdtItem> WaitListDelete;
+    ReentrantLock lock = new ReentrantLock();
     public CrdtDoc(){
-        content = new ArrayList<>(0);
+        content = Collections.synchronizedList(new ArrayList());
         length = 0;
         version = new HashMap<>();
         WaitListInsert = new ArrayList<>(0);
@@ -218,12 +221,18 @@ public class CrdtDoc {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for(CrdtItem item: content){
-            if(item.isDeleted == false){
-                result.append(item.value);
+        try{
+            lock.lock();
+            StringBuilder result = new StringBuilder();
+            for(CrdtItem item: content){
+                if(item.isDeleted == false){
+                    result.append(item.value);
+                }
             }
+            return result.toString();
+        }finally {
+            lock.unlock();
         }
-        return result.toString();
+
     }
 }

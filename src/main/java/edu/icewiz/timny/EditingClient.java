@@ -3,6 +3,9 @@ package edu.icewiz.timny;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import edu.icewiz.crdt.CrdtDoc;
 import javafx.application.Platform;
@@ -49,28 +52,15 @@ public class EditingClient extends WebSocketClient {
     @Override
     public void onMessage(ByteBuffer message) {
         WebSocketMessage operation = new WebSocketMessage(message);
-        Runnable update = () -> codeArea.replaceText(doc.toString());;
         if(operation.type == 0){
             logArea.appendText("Received message: " + operation.detail + "!\n");
             logArea.positionCaret(logArea.getLength());
-        }else if(operation.type == 3){
-            if(operation.item == null || operation.item.id == null)return;
-            doc.addInsertOperationToWaitList(operation.item);
-            if(editingPageController.lastReceivedMessage != null &&
-                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
-            editingPageController.lastReceivedMessage = doc.toString();
-//            codeArea.replaceText(doc.toString());
-            if (Platform.isFxApplicationThread()) update.run();
-            else Platform.runLater(update);
-        }else if(operation.type == 4){
-            if(operation.item == null || operation.item.id == null)return;
-            doc.addDeleteOperationToWaitList(operation.item);
-            if(editingPageController.lastReceivedMessage != null &&
-                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
-            editingPageController.lastReceivedMessage = doc.toString();
-//            codeArea.replaceText(doc.toString());
-            if (Platform.isFxApplicationThread()) update.run();
-            else Platform.runLater(update);
+        }else {
+            if (operation.item == null || operation.item.id == null) return;
+            if (operation.type == 2) doc.addInsertOperationToWaitList(operation.item);
+            if (operation.type == 3) doc.addDeleteOperationToWaitList(operation.item);
+            Runnable update = () -> codeArea.replaceText(doc.toString());
+            Platform.runLater(update);
         }
     }
 

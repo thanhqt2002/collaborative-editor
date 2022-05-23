@@ -4,15 +4,11 @@ import edu.icewiz.crdt.CrdtDoc;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.LoadException;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.concurrent.Task;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
 
@@ -22,18 +18,16 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.fxmisc.richtext.model.Paragraph;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
-import org.reactfx.collection.ListModification;
 
-import java.io.IOException;
 public class EditingPageController {
     private Scene landingPageScene;
     private LandingPageController landingPageController;
@@ -46,6 +40,9 @@ public class EditingPageController {
     EditingClient editingClient;
     String lastReceivedMessage;
     private ExecutorService executor;
+    ReadWriteLock lock = new ReentrantReadWriteLock();
+    Lock writeLock = lock.writeLock();
+    Lock readLock = lock.readLock();
 
     private static final String[] KEYWORDS = new String[] {
             "abstract", "assert", "boolean", "break", "byte",
@@ -112,30 +109,38 @@ public class EditingPageController {
                 .subscribe(this::applyHighlighting);
 
         codeArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(myName);
-            System.out.printf("new %s\n", newValue);
-            System.out.printf("old %s\n", oldValue);
-            if(oldValue.equals(newValue) || (lastReceivedMessage != null && lastReceivedMessage.equals(newValue)))return;
-            int lef = 0;
-            while(lef < oldValue.length() && lef < newValue.length() && oldValue.charAt(lef) == newValue.charAt(lef))lef++;
-            int rig = 0;
-            while(oldValue.length() - rig - 1 >= lef && newValue.length() - rig - 1 >= lef &&
-                    oldValue.charAt(oldValue.length() - rig - 1) == newValue.charAt(newValue.length() - rig - 1))rig++;
-            if(editingClient != null){
-                for(int i = lef; i < oldValue.length() - rig; ++i){
-                    editingClient.send(WebSocketMessage.serializeFromItem(4,doc.localDelete(myName, lef)));
+//            try {
+//                writeLock.lock();
+                if(oldValue.equals(newValue) || newValue.equals(doc.toString()))return;
+                int lef = 0;
+                while(lef < oldValue.length() && lef < newValue.length() && oldValue.charAt(lef) == newValue.charAt(lef))lef++;
+                int rig = 0;
+                while(oldValue.length() - rig - 1 >= lef && newValue.length() - rig - 1 >= lef &&
+                        oldValue.charAt(oldValue.length() - rig - 1) == newValue.charAt(newValue.length() - rig - 1))rig++;
+//                System.out.printf("lef: %d, rig: %d\n", lef, rig);
+//                StringBuffer tmp = new StringBuffer(oldValue);
+//                tmp.delete(lef,oldValue.length()-rig);
+//                tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
+                if (editingClient != null) {
+                    for (int i = lef; i < oldValue.length() - rig; ++i) {
+                        editingClient.send(WebSocketMessage.serializeFromItem(3, doc.localDelete(myName, lef)));
+                    }
+                    for (int i = newValue.length() - rig - 1; i >= lef; --i) {
+                        editingClient.send(WebSocketMessage.serializeFromItem(2, doc.localInsert(myName, lef, newValue.substring(i, i + 1))));
+                    }
+                } else if (editingServer != null) {
+                    for (int i = lef; i < oldValue.length() - rig; ++i) {
+                        editingServer.broadcast(WebSocketMessage.serializeFromItem(3, doc.localDelete(myName, lef)));
+                    }
+                    for (int i = newValue.length() - rig - 1; i >= lef; --i) {
+                        editingServer.broadcast(WebSocketMessage.serializeFromItem(2, doc.localInsert(myName, lef, newValue.substring(i, i + 1))));
+                    }
                 }
-                for(int i = newValue.length() - rig - 1; i >= lef; --i){
-                    editingClient.send(WebSocketMessage.serializeFromItem(3, doc.localInsert(myName,lef,newValue.substring(i,i+1))));
-                }
-            }else if(editingServer != null){
-                for(int i = lef; i < oldValue.length() - rig; ++i){
-                    editingServer.broadcast(WebSocketMessage.serializeFromItem(4,doc.localDelete(myName, lef)));
-                }
-                for(int i = newValue.length() - rig - 1; i >= lef; --i){
-                    editingServer.broadcast(WebSocketMessage.serializeFromItem(3, doc.localInsert(myName,lef,newValue.substring(i,i+1))));
-                }
-            }
+//                System.out.printf("tmp: %s, old: %s, new: %s, doc: %s\n", tmp, oldValue, newValue, doc);
+//                assert(tmp.equals(doc.toString()));
+//            }finally {
+//                writeLock.unlock();
+//            }
         });
     }
 
@@ -192,6 +197,7 @@ public class EditingPageController {
         editingServer.setCodeArea(codeArea);
         editingServer.setEditingPageController(this);
         editingServer.setCrdtDoc(doc);
+//        editingServer.setLock(lock,writeLock,readLock);
         editingServer.start();
     }
 
@@ -213,6 +219,7 @@ public class EditingPageController {
         editingClient.setCodeArea(codeArea);
         editingClient.setEditingPageController(this);
         editingClient.setCrdtDoc(doc);
+//        editingClient.setLock(lock,writeLock,readLock);
         editingClient.connect();
     }
 

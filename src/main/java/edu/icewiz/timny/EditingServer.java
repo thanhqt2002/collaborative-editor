@@ -19,6 +19,8 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class EditingServer extends WebSocketServer {
     HashMap<WebSocket,String> ConnectionInfo = new HashMap<WebSocket,String>();
@@ -59,7 +61,6 @@ public class EditingServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
         WebSocketMessage operation = new WebSocketMessage(message);
-        Runnable update = () -> codeArea.replaceText(doc.toString());;
 
         if(operation.type == 0){
             logArea.appendText(ConnectionInfo.get(conn) + ": " + operation.detail + "!\n");
@@ -68,26 +69,13 @@ public class EditingServer extends WebSocketServer {
             ConnectionInfo.put(conn, operation.detail);
             logArea.appendText(operation.detail + " join the server" + "!\n");
             logArea.positionCaret(logArea.getLength());
-        }else if(operation.type == 3){
-            if(operation.item == null || operation.item.id == null)return;
-            doc.addInsertOperationToWaitList(operation.item);
-            if(editingPageController.lastReceivedMessage != null &&
-                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
+        }else{
+            if (operation.item == null || operation.item.id == null) return;
+            if (operation.type == 2) doc.addInsertOperationToWaitList(operation.item);
+            if (operation.type == 3) doc.addDeleteOperationToWaitList(operation.item);
+            Runnable update = () -> codeArea.replaceText(doc.toString());
+            Platform.runLater(update);
             broadcastExclude(conn, message);
-            editingPageController.lastReceivedMessage = doc.toString();
-//            codeArea.replaceText(doc.toString());
-            if (Platform.isFxApplicationThread()) update.run();
-            else Platform.runLater(update);
-        }else if(operation.type == 4){
-            if(operation.item == null || operation.item.id == null)return;
-            doc.addDeleteOperationToWaitList(operation.item);
-            if(editingPageController.lastReceivedMessage != null &&
-                    editingPageController.lastReceivedMessage.equals(doc.toString()))return;
-            broadcastExclude(conn, message);
-            editingPageController.lastReceivedMessage = doc.toString();
-//            codeArea.replaceText(doc.toString());
-            if (Platform.isFxApplicationThread()) update.run();
-            else Platform.runLater(update);
         }
     }
 
