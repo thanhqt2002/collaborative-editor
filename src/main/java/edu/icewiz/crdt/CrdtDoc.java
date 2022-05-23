@@ -126,6 +126,7 @@ public class CrdtDoc {
     }
 
     public void addInsertOperationToWaitList(CrdtItem item){
+        if(isInDoc(item.id))return;
         WaitListInsert.add(item);
         TryClearWaitListInsert();
         TryClearWaitListDelete();
