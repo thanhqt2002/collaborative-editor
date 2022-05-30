@@ -122,13 +122,6 @@ public class EditingPageController {
                 int rig = 0;
                 while(oldValue.length() - rig - 1 >= lef && newValue.length() - rig - 1 >= lef &&
                         oldValue.charAt(oldValue.length() - rig - 1) == newValue.charAt(newValue.length() - rig - 1))rig++;
-//                System.out.printf("Lef: %d Right: %d\n", lef, rig);
-//                System.out.println(oldValue);
-//                System.out.println(newValue);
-                System.out.printf("lef: %d, rig: %d\n", lef, rig);
-                StringBuffer tmp = new StringBuffer(oldValue);
-                tmp.delete(lef,oldValue.length()-rig);
-                tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
 
             if (editingClient != null) {
                     for (int i = lef; i < oldValue.length() - rig; ++i) {
@@ -147,10 +140,6 @@ public class EditingPageController {
                     }
                     editingServer.broadcast(WebSocketMessage.serializeFromItem(4, null));
                 }
-            System.out.println(editingClient);
-            System.out.println(editingServer);
-            System.out.printf("doc: %s\n",  doc);
-            assert(tmp.equals(doc.toString()));
 
         });
     }
