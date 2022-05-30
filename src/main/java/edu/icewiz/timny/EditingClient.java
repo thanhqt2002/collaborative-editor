@@ -56,11 +56,18 @@ public class EditingClient extends WebSocketClient {
             logArea.appendText("Received message: " + operation.detail + "!\n");
             logArea.positionCaret(logArea.getLength());
         }else {
+            if(operation.type == 5){
+                Runnable update = () -> codeArea.replaceText(doc.toString());
+                Platform.runLater(update);
+                return;
+            }
             if (operation.item == null || operation.item.id == null) return;
-            if (operation.type == 2) doc.addInsertOperationToWaitList(operation.item);
+            if (operation.type == 2 || operation.type == 4) doc.addInsertOperationToWaitList(operation.item);
             if (operation.type == 3) doc.addDeleteOperationToWaitList(operation.item);
-            Runnable update = () -> codeArea.replaceText(doc.toString());
-            Platform.runLater(update);
+            if(operation.type != 4) {
+                Runnable update = () -> codeArea.replaceText(doc.toString());
+                Platform.runLater(update);
+            }
         }
     }
 

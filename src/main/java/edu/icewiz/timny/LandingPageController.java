@@ -69,7 +69,7 @@ public class LandingPageController {
     void openFile(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt")
+                new FileChooser.ExtensionFilter("Java file (*.java)", "*.java")
         );
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         File fileToLoad = fileChooser.showOpenDialog(null);
@@ -109,27 +109,28 @@ public class LandingPageController {
                     totalFile.append(line);
                     if(++linesLoaded < lineCount)totalFile.append("\n");
                     updateProgress(linesLoaded, lineCount);
-                    //Sleep for 200ms to demonstrate the progressBar updating
-                    Thread.sleep(200);
+                    //Sleep for 100ms to demonstrate the progressBar updating
+                    Thread.sleep(100);
                 }
                 return totalFile.toString();
             }
         };
-        //If successful, update the text area, display a success message and store the loaded file reference
+
         loadFileTask.setOnSucceeded(workerStateEvent -> {
             try {
                 Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(editingPageScene);
                 String tmp = loadFileTask.get();
-                editingPageController.fromStringToEditingServer(tmp, linkTextArea.getText());
+                //Must set name before creating server
                 editingPageController.setMyName(nameField.getText());
+                editingPageController.fromStringToEditingServer(tmp, linkTextArea.getText());
                 editingPageController.setButtonName("Shutdown");
             } catch (InterruptedException | ExecutionException e) {
                 Logger.getLogger(getClass().getName()).log(SEVERE, null, e);
                 statusLabel.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());
             }
         });
-        //If unsuccessful, set text area with error message and status message to failed
+
         loadFileTask.setOnFailed(workerStateEvent -> {
             statusLabel.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());
         });

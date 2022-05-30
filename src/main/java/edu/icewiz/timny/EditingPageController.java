@@ -116,19 +116,21 @@ public class EditingPageController {
                 })
                 .subscribe(this::applyHighlighting);
         codeArea.textProperty().addListener((observable, oldValue, newValue) -> {
-//            try {
-//                writeLock.lock();
                 if(oldValue.equals(newValue) || newValue.equals(doc.toString()))return;
                 int lef = 0;
                 while(lef < oldValue.length() && lef < newValue.length() && oldValue.charAt(lef) == newValue.charAt(lef))lef++;
                 int rig = 0;
                 while(oldValue.length() - rig - 1 >= lef && newValue.length() - rig - 1 >= lef &&
                         oldValue.charAt(oldValue.length() - rig - 1) == newValue.charAt(newValue.length() - rig - 1))rig++;
-//                System.out.printf("lef: %d, rig: %d\n", lef, rig);
-//                StringBuffer tmp = new StringBuffer(oldValue);
-//                tmp.delete(lef,oldValue.length()-rig);
-//                tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
-                if (editingClient != null) {
+//                System.out.printf("Lef: %d Right: %d\n", lef, rig);
+//                System.out.println(oldValue);
+//                System.out.println(newValue);
+                System.out.printf("lef: %d, rig: %d\n", lef, rig);
+                StringBuffer tmp = new StringBuffer(oldValue);
+                tmp.delete(lef,oldValue.length()-rig);
+                tmp.insert(lef,newValue.substring(lef,newValue.length()-rig));
+
+            if (editingClient != null) {
                     for (int i = lef; i < oldValue.length() - rig; ++i) {
                         editingClient.send(WebSocketMessage.serializeFromItem(3, doc.localDelete(myName, lef)));
                     }
@@ -143,11 +145,11 @@ public class EditingPageController {
                         editingServer.broadcast(WebSocketMessage.serializeFromItem(2, doc.localInsert(myName, lef, newValue.substring(i, i + 1))));
                     }
                 }
-//                System.out.printf("tmp: %s, old: %s, new: %s, doc: %s\n", tmp, oldValue, newValue, doc);
-//                assert(tmp.equals(doc.toString()));
-//            }finally {
-//                writeLock.unlock();
-//            }
+            System.out.println(editingClient);
+            System.out.println(editingServer);
+            System.out.printf("doc: %s\n",  doc);
+            assert(tmp.equals(doc.toString()));
+
         });
     }
 

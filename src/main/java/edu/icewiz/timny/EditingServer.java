@@ -52,8 +52,9 @@ public class EditingServer extends WebSocketServer {
         conn.send(WebSocketMessage.serializeFromString(0, "Welcome to the server from " + myName + "!"));
         List<CrdtItem> currentContent = doc.returnCopy();
         for (CrdtItem item : currentContent) {
-            conn.send(WebSocketMessage.serializeFromItem(2, item));
+            conn.send(WebSocketMessage.serializeFromItem(4, item));
         }
+        conn.send(WebSocketMessage.serializeFromItem(5,null));
         peerNumberInt++;
         Runnable update = () -> peerNumber.setText("Connected peers: " + peerNumberInt);
         Platform.runLater(update);
@@ -61,7 +62,6 @@ public class EditingServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         String info = ConnectionInfo.get(conn) + " has left the room\n";
-//        broadcast(WebSocketMessage.serializeFromString(0, info));
         logArea.appendText(info);
         logArea.positionCaret(logArea.getLength());
         peerNumberInt--;
