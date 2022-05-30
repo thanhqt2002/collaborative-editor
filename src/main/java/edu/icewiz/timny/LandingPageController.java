@@ -51,12 +51,15 @@ public class LandingPageController {
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         stage.setScene(editingPageScene);
         editingPageController.setMyName(nameField.getText());
+        editingPageController.setButtonName("Disconnect");
         editingPageController.connectServer(linkTextArea.getText());
+
     }
 
     @FXML
     void newFile(ActionEvent event) {
         editingPageController.setMyName(nameField.getText());
+        editingPageController.setButtonName("Shutdown");
         editingPageController.fromStringToEditingServer("", linkTextArea.getText());
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         stage.setScene(editingPageScene);
@@ -115,11 +118,12 @@ public class LandingPageController {
         //If successful, update the text area, display a success message and store the loaded file reference
         loadFileTask.setOnSucceeded(workerStateEvent -> {
             try {
+                Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+                stage.setScene(editingPageScene);
                 String tmp = loadFileTask.get();
                 editingPageController.fromStringToEditingServer(tmp, linkTextArea.getText());
                 editingPageController.setMyName(nameField.getText());
-                Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-                stage.setScene(editingPageScene);
+                editingPageController.setButtonName("Shutdown");
             } catch (InterruptedException | ExecutionException e) {
                 Logger.getLogger(getClass().getName()).log(SEVERE, null, e);
                 statusLabel.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());

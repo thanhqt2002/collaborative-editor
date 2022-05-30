@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.concurrent.Task;
 
@@ -36,6 +38,10 @@ public class EditingPageController {
     @FXML TextArea logArea;
     @FXML
     private CodeArea codeArea;
+    @FXML
+    private Button disconnectButton;
+    @FXML
+    private Label peerNumber;
     EditingServer editingServer;
     EditingClient editingClient;
     String lastReceivedMessage;
@@ -77,13 +83,14 @@ public class EditingPageController {
 
 
     @FXML
-    void SaveText(ActionEvent event) {
-
-    }
-
-    @FXML
     void disconnectServer(ActionEvent event) {
-
+        codeArea.setEditable(false);
+        disconnectButton.setDisable(true);
+        if(editingServer != null){
+            logArea.appendText("Server shutdown, disconnecting all peers\n");
+            logArea.positionCaret(logArea.getLength());
+        }
+        shutdownServerOrClient();
     }
     @FXML
     void initialize(){
@@ -91,6 +98,7 @@ public class EditingPageController {
 
         logArea.setEditable(false);
         executor = Executors.newSingleThreadExecutor();
+        codeArea.setStyle("-fx-font-family: monospace; -fx-font-size: 15pt;");
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         Subscription cleanupWhenDone = codeArea.multiPlainChanges()
@@ -107,7 +115,6 @@ public class EditingPageController {
                     }
                 })
                 .subscribe(this::applyHighlighting);
-
         codeArea.textProperty().addListener((observable, oldValue, newValue) -> {
 //            try {
 //                writeLock.lock();
@@ -198,6 +205,7 @@ public class EditingPageController {
         editingServer.setEditingPageController(this);
         editingServer.setCrdtDoc(doc);
 //        editingServer.setLock(lock,writeLock,readLock);
+        editingServer.setPeerNumber(peerNumber);
         editingServer.start();
     }
 
@@ -219,6 +227,7 @@ public class EditingPageController {
         editingClient.setCodeArea(codeArea);
         editingClient.setEditingPageController(this);
         editingClient.setCrdtDoc(doc);
+        peerNumber.setVisible(false);
 //        editingClient.setLock(lock,writeLock,readLock);
         editingClient.connect();
     }
@@ -251,5 +260,8 @@ public class EditingPageController {
     }
     public void setMyName(String myName){
         if(myName != null) this.myName = myName;
+    }
+    public void setButtonName(String buttonName){
+        disconnectButton.setText(buttonName);
     }
 }

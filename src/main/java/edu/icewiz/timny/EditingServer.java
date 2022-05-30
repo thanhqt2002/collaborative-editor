@@ -4,6 +4,7 @@ import edu.icewiz.crdt.CrdtDoc;
 import edu.icewiz.crdt.CrdtItem;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import org.fxmisc.richtext.CodeArea;
 import org.java_websocket.WebSocket;
@@ -18,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -31,6 +33,9 @@ public class EditingServer extends WebSocketServer {
     private TextArea logArea;
     @FXML
     private CodeArea codeArea;
+    @FXML
+    private Label peerNumber;
+    int peerNumberInt = 0;
     private static final Draft perMessageDeflateDraft = new Draft_6455(
             new PerMessageDeflateExtension());
     public EditingServer(int port) {
@@ -45,13 +50,23 @@ public class EditingServer extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         conn.send(WebSocketMessage.serializeFromString(0, "Welcome to the server from " + myName + "!"));
+        List<CrdtItem> currentContent = doc.returnCopy();
+        for (CrdtItem item : currentContent) {
+            conn.send(WebSocketMessage.serializeFromItem(2, item));
+        }
+        peerNumberInt++;
+        Runnable update = () -> peerNumber.setText("Connected peers: " + peerNumberInt);
+        Platform.runLater(update);
     }
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        String info = ConnectionInfo.get(conn) + " has left the room!";
+        String info = ConnectionInfo.get(conn) + " has left the room\n";
 //        broadcast(WebSocketMessage.serializeFromString(0, info));
         logArea.appendText(info);
         logArea.positionCaret(logArea.getLength());
+        peerNumberInt--;
+        Runnable update = () -> peerNumber.setText("Connected peers: " + peerNumberInt);
+        Platform.runLater(update);
     }
     @Override
     public void onMessage(WebSocket conn, String message){
@@ -95,6 +110,8 @@ public class EditingServer extends WebSocketServer {
         logArea.positionCaret(logArea.getLength());
         setConnectionLostTimeout(0);
         setConnectionLostTimeout(100);
+        Runnable update = () -> peerNumber.setText("Connected peers: " + peerNumberInt);
+        Platform.runLater(update);
     }
 
     private void broadcastExclude(WebSocket conn, ByteBuffer message){
@@ -120,5 +137,8 @@ public class EditingServer extends WebSocketServer {
     }
     public void setCrdtDoc(CrdtDoc doc){
         this.doc = doc;
+    }
+    public void setPeerNumber(Label peerNumber){
+        this.peerNumber = peerNumber;
     }
 }

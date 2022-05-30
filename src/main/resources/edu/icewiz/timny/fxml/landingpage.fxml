@@ -9,36 +9,45 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.LandingPageController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.LandingPageController">
    <children>
-      <ImageView fitHeight="206.0" fitWidth="481.0" layoutX="60.0" layoutY="25.0" pickOnBounds="true">
+      <ImageView fitHeight="500.0" fitWidth="1000.0" layoutX="-218.0" layoutY="-85.0" pickOnBounds="true">
          <image>
             <Image url="@../assets/logo.png" />
          </image>
       </ImageView>
-      <HBox layoutX="141.0" layoutY="304.0" prefHeight="47.0" prefWidth="353.0">
-         <children>
-            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connectPort" prefHeight="47.0" prefWidth="114.0" text="Connect" />
-            <Button fx:id="openButton" mnemonicParsing="false" onAction="#openFile" prefHeight="47.0" prefWidth="114.0" text="Open" />
-            <Button fx:id="newButton" mnemonicParsing="false" onAction="#newFile" prefHeight="47.0" prefWidth="125.0" text="New" />
-         </children>
-      </HBox>
-      <HBox layoutX="1.0" layoutY="374.0" prefHeight="25.0" prefWidth="600.0">
-         <children>
-            <Label fx:id="statusLabel" prefWidth="300.0" text="Label">
-               <padding>
-                  <Insets left="20.0" />
-               </padding>
-            </Label>
-            <ProgressBar fx:id="progressBar" prefWidth="275.0" progress="0.0" HBox.hgrow="ALWAYS">
-               <padding>
-                  <Insets right="10.0" />
-               </padding>
-            </ProgressBar>
-         </children>
-      </HBox>
-      <TextField fx:id="linkTextArea" layoutX="141.0" layoutY="241.0" prefHeight="47.0" prefWidth="135.0" />
-      <TextField fx:id="nameField" layoutX="350.0" layoutY="241.0" prefHeight="47.0" prefWidth="141.0" />
+      <HBox layoutX="1.0" layoutY="451.0" prefHeight="25.0" prefWidth="600.0" />
+      <TextField fx:id="linkTextArea" layoutX="125.0" layoutY="420.0" prefHeight="60.0" prefWidth="300.0" />
+      <TextField fx:id="nameField" layoutX="125.0" layoutY="340.0" prefHeight="60.0" prefWidth="300.0" />
+      <Label fx:id="statusLabel" layoutX="5.0" layoutY="761.0" prefWidth="300.0" text="Label">
+         <padding>
+            <Insets left="20.0" />
+         </padding>
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
+      <ProgressBar fx:id="progressBar" layoutX="327.0" layoutY="760.0" prefHeight="31.0" prefWidth="221.0" progress="0.0">
+         <padding>
+            <Insets right="10.0" />
+         </padding>
+      </ProgressBar>
+      <Button fx:id="connectButton" layoutX="125.0" layoutY="660.0" mnemonicParsing="false" onAction="#connectPort" prefHeight="60.0" prefWidth="300.0" text="Connect to server">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Button>
+      <Button fx:id="newButton" layoutX="125.0" layoutY="500.0" mnemonicParsing="false" onAction="#newFile" prefHeight="60.0" prefWidth="300.0" text="New Document">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Button>
+      <Button fx:id="openButton" layoutX="125.0" layoutY="580.0" mnemonicParsing="false" onAction="#openFile" prefHeight="60.0" prefWidth="300.0" text="Open File">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

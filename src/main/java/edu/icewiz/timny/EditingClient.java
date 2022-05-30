@@ -66,7 +66,7 @@ public class EditingClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        logArea.appendText("Server shutdown");
+        logArea.appendText("You are disconnected from the room\n");
         logArea.positionCaret(logArea.getLength());
         codeArea.setEditable(false);
     }

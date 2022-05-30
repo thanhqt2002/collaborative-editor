@@ -8,25 +8,39 @@
 <?import org.fxmisc.richtext.CodeArea?>
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.EditingPageController">
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.icewiz.timny.EditingPageController">
     <center>
         <VirtualizedScrollPane>
             <content>
-                <CodeArea fx:id="codeArea" prefHeight="190.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+                <CodeArea fx:id="codeArea" prefHeight="190.0" prefWidth="600.0" BorderPane.alignment="CENTER"/>
             </content>
         </VirtualizedScrollPane>
     </center>
     <bottom>
-        <TextArea fx:id="logArea" editable="false" prefHeight="70.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+        <TextArea fx:id="logArea" editable="false" prefHeight="150.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+        <font>
+            <Font size="20.0" />
+        </font>
+        </TextArea>
     </bottom>
     <top>
-        <ToolBar prefHeight="40.0" prefWidth="544.0" BorderPane.alignment="CENTER">
+        <ToolBar prefHeight="30.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <items>
-                <Button mnemonicParsing="false" onAction="#SaveText" text="Save" />
-                <Button mnemonicParsing="false" onAction="#disconnectServer" text="Disconnect" />
-                <Label text="File name" />
-                <Label text="Connection info" />
-                <Label text="Peer contected" />
+                <Button fx:id="disconnectButton" mnemonicParsing="false" onAction="#disconnectServer" text="Disconnect">
+                    <font>
+                        <Font size="15.0" />
+                    </font>
+                </Button>
+                <Label fx:id="peerNumber" text="Number of peers connected">
+                    <font>
+                        <Font size="15.0" />
+                    </font>
+                    <padding>
+                        <Insets left="180.0" />
+                    </padding>
+                </Label>
             </items>
         </ToolBar>
     </top>

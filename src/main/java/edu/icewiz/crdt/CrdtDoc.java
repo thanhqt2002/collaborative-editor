@@ -219,6 +219,15 @@ public class CrdtDoc {
         if(!item.isDeleted)length++;
     }
 
+    public List<CrdtItem> returnCopy(){
+        try{
+            lock.lock();
+            return content;
+        }finally {
+            lock.unlock();
+        }
+    }
+
     @Override
     public String toString() {
         try{
