@@ -137,13 +137,15 @@ public class EditingPageController {
                     for (int i = newValue.length() - rig - 1; i >= lef; --i) {
                         editingClient.send(WebSocketMessage.serializeFromItem(2, doc.localInsert(myName, lef, newValue.substring(i, i + 1))));
                     }
-                } else if (editingServer != null) {
+                    editingClient.send(WebSocketMessage.serializeFromItem(4, null));
+            } else if (editingServer != null) {
                     for (int i = lef; i < oldValue.length() - rig; ++i) {
                         editingServer.broadcast(WebSocketMessage.serializeFromItem(3, doc.localDelete(myName, lef)));
                     }
                     for (int i = newValue.length() - rig - 1; i >= lef; --i) {
                         editingServer.broadcast(WebSocketMessage.serializeFromItem(2, doc.localInsert(myName, lef, newValue.substring(i, i + 1))));
                     }
+                    editingServer.broadcast(WebSocketMessage.serializeFromItem(4, null));
                 }
             System.out.println(editingClient);
             System.out.println(editingServer);

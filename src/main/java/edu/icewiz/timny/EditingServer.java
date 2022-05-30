@@ -52,9 +52,9 @@ public class EditingServer extends WebSocketServer {
         conn.send(WebSocketMessage.serializeFromString(0, "Welcome to the server from " + myName + "!"));
         List<CrdtItem> currentContent = doc.returnCopy();
         for (CrdtItem item : currentContent) {
-            conn.send(WebSocketMessage.serializeFromItem(4, item));
+            conn.send(WebSocketMessage.serializeFromItem(2, item));
         }
-        conn.send(WebSocketMessage.serializeFromItem(5,null));
+        conn.send(WebSocketMessage.serializeFromItem(4,null));
         peerNumberInt++;
         Runnable update = () -> peerNumber.setText("Connected peers: " + peerNumberInt);
         Platform.runLater(update);
@@ -85,11 +85,15 @@ public class EditingServer extends WebSocketServer {
             logArea.appendText(operation.detail + " join the server" + "!\n");
             logArea.positionCaret(logArea.getLength());
         }else{
+            if(operation.type == 4) {
+                Runnable update = () -> codeArea.replaceText(doc.toString());
+                Platform.runLater(update);
+                broadcastExclude(conn, message);
+                return;
+            }
             if (operation.item == null || operation.item.id == null) return;
             if (operation.type == 2) doc.addInsertOperationToWaitList(operation.item);
             if (operation.type == 3) doc.addDeleteOperationToWaitList(operation.item);
-            Runnable update = () -> codeArea.replaceText(doc.toString());
-            Platform.runLater(update);
             broadcastExclude(conn, message);
         }
     }
